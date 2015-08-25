@@ -35,6 +35,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       },
 
+      observers: [
+        '_dataChanged(todos.*)'
+      ],
+
       created: function() {
         this._collectTodosCb = this._collectTodos.bind(this);
       },
@@ -73,6 +77,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // without holding on to state
         // This way Firebase becomes the single source of truth
         this.todos = todos;
+      },
+
+      _dataChanged: function(info) {
+        var parts = info.path.split('.');
+        var property = parts.pop();
+        switch (property) {
+          case 'isComplete':
+          case 'label':
+            console.log('updating', property, 'to', info.value);
+            var update = {};
+            update[property] = info.value;
+            var todo = this.get(parts);
+            todo.ref.update(update);
+            break;
+          case '_deleted':
+            console.log('removing todo');
+            //todo.ref.remove();
+            break;
+        }
       }
 
     });

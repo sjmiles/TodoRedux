@@ -81,7 +81,7 @@
 
         <template is="dom-repeat" items="{{todos}}" as="todo" filter="{{_computeFilter(filter)}}">
 
-          <todo-item todo="{{todo}}"></todo-item>
+          <todo-item label="{{todo.label}}" is-complete="{{todo.isComplete}}" deleted="{{todo._deleted}}"></todo-item>
 
         </template>
 
@@ -127,6 +127,10 @@
       properties: {
 
         user: {
+          notify: true
+        },
+
+        todos: {
           notify: true
         }
 

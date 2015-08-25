@@ -64,9 +64,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     no corresponding js property so we need to write a literal attribute
     value, which is what $= does. -->
 
-    <paper-checkbox checked="{{todo.isComplete}}" aria-labelledby="{{guid}}"></paper-checkbox>
+    <paper-checkbox checked="{{isComplete}}" aria-labelledby="{{guid}}"></paper-checkbox>
 
-    <input label id="{{guid}}" value="{{todo.label::change}}">
+    <input label id="{{guid}}" value="{{label::change}}">
 
     <paper-icon-button icon="delete" aria-label="Delete Todo" tabindex="0" on-tap="_onDelete"></paper-icon-button>
 
@@ -78,28 +78,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       is: 'todo-item',
 
       properties: {
+
         guid: {
           value: function() {
             return 'g' + Math.random().toFixed(2)*100;
           }
+        },
+
+        isComplete: {
+          notify: true
+        },
+
+        label: {
+          notify: true
+        },
+
+        deleted: {
+          notify: true
         }
-      },
 
-      observers: [
-        '_labelChanged(todo.label)',
-        '_isCompleteChanged(todo.isComplete)',
-      ],
-
-      _labelChanged: function(label) {
-        this.todo.ref.update({label: label});
-      },
-
-      _isCompleteChanged: function(isComplete) {
-        this.todo.ref.update({isComplete: isComplete});
       },
 
       _onDelete: function() {
-        this.todo.ref.remove();
+        this.deleted = true;
       }
 
     });
