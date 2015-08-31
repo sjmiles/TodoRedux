@@ -1,0 +1,106 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<dom-module id="todo-item">
+  <style>
+
+    :host {
+      display: block;
+      box-sizing: border-box;
+      min-height: 50px;
+      font-family: 'Roboto Slab', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+      font-size: 1rem;
+    }
+
+    :host {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+
+    paper-checkbox, [type] {
+      margin-right: 32px;
+    }
+
+    paper-checkbox[checked] + input, [type][checked] + input {
+      color: #9E9E9E;
+      text-decoration: line-through;
+    }
+
+    /* Checkbox has 8px of extra space on top so we have to account for that */
+    [label] {
+      padding: 4px 4px;
+      border: none;
+      border-bottom: 1px dotted silver;
+      background-color: transparent;
+      font: inherit;
+      @apply(--layout-flex);
+    }
+
+    paper-icon-button {
+      opacity: 0;
+      /* Odd hack to fix cropped paper-ripple focus state */
+      /* https://github.com/PolymerElements/paper-icon-button/issues/33 */
+      font-size: 15px;
+    }
+
+    :host:hover paper-icon-button,
+    paper-checkbox[focused] ~ paper-icon-button,
+    input:focus ~ paper-icon-button,
+    paper-icon-button[focused] {
+      opacity: 1;
+    }
+
+  </style>
+  <template>
+
+    <!-- Note the use of $= for aria-labelledby. This is because there's
+    no corresponding js property so we need to write a literal attribute
+    value, which is what $= does. -->
+
+    <paper-checkbox checked="{{isComplete}}" aria-labelledby$="{{guid}}"></paper-checkbox>
+
+    <input label id="{{guid}}" value="{{label::change}}">
+
+    <paper-icon-button icon="delete" aria-label="Delete Todo" tabindex="0" on-tap="_onDelete"></paper-icon-button>
+
+  </template>
+  <script>
+
+    Polymer({
+
+      is: 'todo-item',
+
+      properties: {
+
+        guid: {
+          value: function() {
+            return 'g' + Math.random().toFixed(2)*100;
+          }
+        },
+
+        isComplete: {
+          value: false,
+          notify: true
+        },
+
+        label: {
+          notify: true
+        }
+
+      },
+
+      _onDelete: function() {
+        this.fire('delete-todo');
+      }
+
+    });
+
+  </script>
+</dom-module>

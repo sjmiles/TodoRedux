@@ -1,0 +1,203 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="todo-item.html">
+<link rel="import" href="todo-input.html">
+
+<dom-module id="todo-view">
+
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    app-header {
+      background-color: #4285f4;
+      color: #fff;
+    }
+
+    [content] {
+      padding: 48px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    [flex] {
+      @apply(--layout-flex);
+    }
+
+    paper-menu a {
+      display: block;
+      text-decoration: none;
+      min-height: 48px;
+      padding-left: 16px;
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+
+    }
+
+    paper-menu iron-icon {
+      margin-right: 33px;
+      opacity: 0.54;
+    }
+
+  </style>
+
+  <template>
+
+    <app-layout opened="{{drawer}}">
+
+      <app-header condenses>
+
+        <app-toolbar>
+
+          <paper-icon-button icon="menu" drawer-toggle on-tap="openDrawer"></paper-icon-button>
+
+          <span flex></span>
+
+          <paper-icon-button disabled="{{!user}}" title="Clear Completed" icon="archive" on-tap="clear"></paper-icon-button>
+
+          <paper-icon-button disabled="{{!user}}" title="Sign Out" icon="cloud-off" on-tap="signOut"></paper-icon-button>
+
+        </app-toolbar>
+
+        <app-toolbar></app-toolbar>
+
+        <app-toolbar>
+
+          <div spacer title>TodoRedux!</div>
+
+        </app-toolbar>
+
+      </app-header>
+
+      <div content>
+
+        <template is="dom-repeat" items="{{todos}}" as="todo" Xfilter="{{_computeFilter(filter)}}">
+
+          <todo-item label="{{todo.label}}" is-complete="{{todo.isComplete}}" on-delete-todo="onDeleteTodo"></todo-item>
+
+        </template>
+        
+        <todo-input on-add-todo="onAddTodo"></todo-input>
+
+      </div>
+
+      <div drawer>
+
+        <app-toolbar>
+
+          <span>Menu</span>
+
+        </app-toolbar>
+
+        <paper-menu attr-for-selected="name" selected="{{route}}" on-tap="closeDrawer">
+
+          <a name="" href="#/">
+            <iron-icon icon="assignment"></iron-icon>
+            <span>All Todos</span>
+          </a>
+
+          <a name="active" href="#/active">
+            <iron-icon icon="assignment-late"></iron-icon>
+            <span>Active</span>
+          </a>
+
+          <a name="completed" href="#/completed">
+            <iron-icon icon="assignment-turned-in"></iron-icon>
+            <span>Completed</span>
+          </a>
+
+        </paper-menu>
+
+      </div>
+
+    </app-layout>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      properties: {
+
+        user: {
+          notify: true
+        },
+
+        todos: {
+          notify: true
+        }
+
+      },
+
+      openDrawer: function() {
+        this.drawer = true;
+      },
+
+      closeDrawer: function() {
+        this.drawer = false;
+      },
+
+      signOut: function() {
+        this.user = null;
+      },
+      
+      onAddTodo: function(e) {
+        this.push('todos', {
+          label: e.detail.value
+        });
+      },
+      
+      onDeleteTodo: function(e) {
+        this.arrayDelete('todos', e.model.todo);
+      },
+
+      clear: function() {
+        // firebase-collection didn't handle this properly 
+        /*
+        this.todos = this.todos.filter(this._computeFilter('active'));
+        */
+        /*
+        var filter = this._computeFilter('completed');
+        for (var i=0; i<this.todos.length; i++) {
+          if (filter(this.todos[i])) {
+            this.splice('todos', i--, 1);
+          }
+        }
+        */
+        this.arrayFilter('todos', this._computeFilter('completed'));
+      },
+
+      _computeFilter: function(filterBy) {
+        if (filterBy) {
+          var ifComplete = (filterBy === 'completed');
+          return function(item) {
+            return item.isComplete === ifComplete;
+          };
+        }
+      },
+      
+      arrayFilter: function(arr, filter) {
+        var array = this.get(arr);
+        for (var i=0; i<array.length; i++) {
+          if (filter(array[i])) {
+            this.splice(arr, i--, 1);
+          }
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>
